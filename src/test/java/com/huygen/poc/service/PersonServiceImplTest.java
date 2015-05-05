@@ -5,7 +5,6 @@ import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.model.Person;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -13,8 +12,12 @@ import org.testng.annotations.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.assertEquals;
 
 public class PersonServiceImplTest
 {
@@ -25,7 +28,6 @@ public class PersonServiceImplTest
     private PersonServiceImpl personService;
 
     private Person person;
-    private Person person1;
 
     @BeforeMethod
     public void setup()
@@ -90,31 +92,40 @@ public class PersonServiceImplTest
     public void should_get_person() throws PersonAppException
     {
         //GIVEN
+        doReturn(person).when(personDao).getPerson(anyInt());
 
         //WHEN
-        personService.getPerson(person.getPersonId());
+        Person returnedPerson = personService.getPerson(person.getPersonId());
 
         //THEN
         verify(personDao).getPerson(person.getPersonId());
+        assertEquals(returnedPerson.getPersonId(), person.getPersonId());
     }
 
     @Test
     public void should_get_all_person() throws PersonAppException
     {
         //GIVEN
+        List<Person> personList = new ArrayList<Person>();
+        personList.add(person);
+        person.setPersonId(101);
+        person.setFirstName("Joy");
+        personList.add(person);
+        doReturn(personList).when(personDao).getAllPersons();
 
         //WHEN
-        personService.getAllPersons();
+        List<Person> returnedPersonList = personService.getAllPersons();
 
         //THEN
         verify(personDao).getAllPersons();
+        assertEquals(personList, returnedPersonList);
     }
 
     @Test
     public void should_not_add_person() throws PersonAppException
     {
         //GIVEN
-
+        Person person1 = null;
 
         //WHEN
         personService.addPerson(person1);
@@ -128,6 +139,7 @@ public class PersonServiceImplTest
     public void should_not_update_person() throws PersonAppException
     {
         //GIVEN
+        Person person1 = null;
 
         //WHEN
         personService.updatePerson(person1);
@@ -140,6 +152,7 @@ public class PersonServiceImplTest
     public void should_not_delete_person() throws PersonAppException
     {
         //GIVEN
+        Person person1 = null;
 
         //WHEN
         personService.deletePerson(person1);

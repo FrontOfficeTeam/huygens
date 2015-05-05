@@ -17,7 +17,7 @@ public class DateUtil
             return (formatter.parse(dateInString));
         } catch (ParseException exception)
         {
-            throw new PersonAppException("Error in parsing date.");
+            throw new PersonAppException("Error in parsing date", exception);
         }
     }
 }

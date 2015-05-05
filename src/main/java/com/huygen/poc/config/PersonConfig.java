@@ -17,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 public class PersonConfig
@@ -26,7 +27,7 @@ public class PersonConfig
     {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-        dataSource.setUrl("jdbc:hsqldb:mem:.");
+        dataSource.setUrl("jdbc:hsqldb:mem:person.sql");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         return dataSource;
@@ -52,18 +53,22 @@ public class PersonConfig
         localContainerEntityManagerFactoryBean.setPersistenceUnitName("corePersistenceUnit");
         localContainerEntityManagerFactoryBean.setDataSource(datasource());
         localContainerEntityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
+        localContainerEntityManagerFactoryBean.afterPropertiesSet();
+        Properties jpaProperties = new Properties();
+        jpaProperties.setProperty("hibernate.hbm2ddl.auto","create-drop");
+        localContainerEntityManagerFactoryBean.setJpaProperties(jpaProperties);
 
         return localContainerEntityManagerFactoryBean.getObject();
     }
 
-    @Bean
+    /*@Bean
     public EntityManager entityManager()
     {
         SharedEntityManagerBean entityManager = new SharedEntityManagerBean();
         entityManager.setEntityManagerFactory(entityManagerFactory());
         entityManager.afterPropertiesSet();
         return entityManager.getObject();
-    }
+    }*/
 
     @Bean
     public PlatformTransactionManager transactionManager()
@@ -78,7 +83,7 @@ public class PersonConfig
     public PersonDao personDao()
     {
         PersonDaoImpl personDao = new PersonDaoImpl();
-        personDao.setEntityManager(entityManager());
+        personDao.setEntityManager(entityManagerFactory().createEntityManager());
 
         return personDao;
     }
