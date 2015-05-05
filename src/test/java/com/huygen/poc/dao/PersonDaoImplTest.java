@@ -4,6 +4,7 @@ import com.huygen.poc.config.PersonConfig;
 import com.huygen.poc.model.Person;
 import com.huygen.poc.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +19,11 @@ import static org.testng.Assert.*;
 public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
 {
     @Autowired
-    PersonDao personDao;
+    private PersonDaoImpl personDao;
 
-    Person person;
+    private Person person;
 
-    public void setPersonDao(PersonDao personDao)
+    public void setPersonDao(PersonDaoImpl personDao)
     {
         this.personDao = personDao;
     }
@@ -48,7 +49,7 @@ public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
     }
 
     @Test
-    @Transactional(noRollbackForClassName = {"Person"})
+    @Transactional
     public void testAddPerson() throws Exception
     {
         //GIVEN

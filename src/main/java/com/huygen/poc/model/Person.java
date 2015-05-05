@@ -9,7 +9,7 @@ public class Person
 {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
     private int id;
     @Column(name = "PERSON_ID")

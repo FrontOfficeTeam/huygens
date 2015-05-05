@@ -3,7 +3,10 @@ package com.huygen.poc.dao;
 import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.model.Person;
 import com.huygen.poc.util.DateUtil;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -12,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+@Repository
 public class PersonDaoImpl implements PersonDao
 {
     private EntityManager entityManager;
@@ -19,7 +23,7 @@ public class PersonDaoImpl implements PersonDao
     private final String PERSON_ID = "personId";
     private final String TO_DATE = "toDate";
 
-
+    @Required
     public void setEntityManager(EntityManager entityManager)
     {
         this.entityManager = entityManager;
@@ -29,10 +33,12 @@ public class PersonDaoImpl implements PersonDao
     {
         try
         {
+            System.out.println("***************************************** "  + person.getFirstName());
             Objects.requireNonNull(person);
             person.setFromDate(new Date());
             person.setToDate(DateUtil.convertToDate(FOREVER_DATE));
             entityManager.persist(person);
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++");
 
         } catch (DataAccessException exception)
         {
@@ -107,17 +113,19 @@ public class PersonDaoImpl implements PersonDao
 
     }
 
-
     public Person getPerson(int personId) throws PersonAppException
     {
         try
         {
             //Query query = entityManager.createQuery("select p from Person p where p.personId = :param1 and " + " p.toDate = :param2");
-            Query query = entityManager.createQuery("select p from Person p where p.personId = :param1");
-            query.setParameter("param1", personId);
+            Query query = entityManager.createQuery("from Person");
+           // query.setParameter("param1", personId);
             //query.setParameter("param2", DateUtil.convertToDate(FOREVER_DATE));
 
-            return (Person) query.getSingleResult();
+          //  return (Person) query.getSingleResult();
+            List<Person> personList = query.getResultList();
+            Objects.requireNonNull(personList);
+                    return personList.get(0);
 
             /*if (null != query.getResultList() && !query.getResultList().isEmpty())
             {
