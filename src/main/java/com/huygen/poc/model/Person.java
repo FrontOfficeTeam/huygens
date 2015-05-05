@@ -1,82 +1,103 @@
 package com.huygen.poc.model;
 
-import java.util.Date;
 import javax.persistence.*;
+import java.util.Date;
 
-/**
- * Created by suganya.subramanian on 4/21/2015.
- */
 @Entity
-@Table(name="PERSON_DETAILS")
-public class Person{
+@Table(name = "PERSON_DETAILS")
+public class Person
+{
 
     @Id
-    @GeneratedValue(strategy=GenerationType.TABLE)
-    @Column(name="ID")
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    @Column(name = "ID")
     private int id;
-    @Column(name="PERSON_ID")
+    @Column(name = "PERSON_ID")
     private Integer personId;
-    @Column(name="FIRST_NAME")
+    @Column(name = "FIRST_NAME")
     private String firstName;
-    @Column(name="LAST_NAME")
+    @Column(name = "LAST_NAME")
     private String lastName;
-    @Column(name="DOB")
+    @Column(name = "DOB")
     private Date dob;
-    @Column(name="FROM_DATE")
+    @Column(name = "FROM_DATE")
     private Date fromDate;
-    @Column(name="TO_DATE")
+    @Column(name = "TO_DATE")
     private Date toDate;
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(int id)
+    {
         this.id = id;
     }
 
-    public Integer getPersonId() {
+    public Integer getPersonId()
+    {
         return personId;
     }
 
-    public void setPersonId(Integer personId) {
+    public void setPersonId(Integer personId)
+    {
         this.personId = personId;
     }
 
-    public String getFirstName() {
+    public String getFirstName()
+    {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(String firstName)
+    {
         this.firstName = firstName;
     }
 
-    public String getLastName() {
+    public String getLastName()
+    {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(String lastName)
+    {
         this.lastName = lastName;
     }
 
-    public Date getDob() {
+    public Date getDob()
+    {
         return dob;
     }
 
-    public void setDob(Date dob) {
+    public void setDob(Date dob)
+    {
         this.dob = dob;
     }
 
-    public Date getFromDate() { return fromDate; }
+    public Date getFromDate()
+    {
+        return fromDate;
+    }
 
-    public void setFromDate(Date fromDate) { this.fromDate = fromDate; }
+    public void setFromDate(Date fromDate)
+    {
+        this.fromDate = fromDate;
+    }
 
-    public Date getToDate() { return toDate; }
+    public Date getToDate()
+    {
+        return toDate;
+    }
 
-    public void setToDate(Date toDate) { this.toDate = toDate; }
+    public void setToDate(Date toDate)
+    {
+        this.toDate = toDate;
+    }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (!(o instanceof Person)) return false;
 
@@ -94,7 +115,8 @@ public class Person{
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = id;
         result = 31 * result + personId.hashCode();
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
@@ -106,7 +128,8 @@ public class Person{
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Person{" +
                 "id=" + id +
                 ", personId=" + personId +
