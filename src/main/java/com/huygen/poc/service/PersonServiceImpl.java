@@ -5,12 +5,16 @@ import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
 public class PersonServiceImpl implements PersonService
 {
+    //@Autowired
     private PersonDao personDao;
     private static final Logger logger = LoggerFactory.getLogger(PersonServiceImpl.class);
 

@@ -39,7 +39,13 @@
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
-    <context:component-scan base-package="com.huygen.poc"/>
+    <bean id="personService" class="com.huygen.poc.service.PersonServiceImpl">
+        <property name="personDao" ref="personDao" />
+    </bean>
+
+    <bean id="personDao" class="com.huygen.poc.dao.PersonDaoImpl"/>
+
+    <!--<context:component-scan base-package="com.huygen.poc"/> -->
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
 

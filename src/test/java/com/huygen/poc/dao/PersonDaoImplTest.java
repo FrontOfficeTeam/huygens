@@ -1,10 +1,7 @@
 package com.huygen.poc.dao;
 
-import com.huygen.poc.config.PersonConfig;
 import com.huygen.poc.model.Person;
-import com.huygen.poc.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +10,7 @@ import org.testng.annotations.Test;
 
 import java.text.SimpleDateFormat;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertNotNull;
 
 @ContextConfiguration(locations = "classpath:person-config.xml")
 public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
