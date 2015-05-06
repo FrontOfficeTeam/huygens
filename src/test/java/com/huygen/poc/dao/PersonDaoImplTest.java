@@ -15,7 +15,8 @@ import java.text.SimpleDateFormat;
 
 import static org.testng.Assert.*;
 
-@ContextConfiguration(classes = PersonConfig.class)
+//@ContextConfiguration(classes = PersonConfig.class)
+@ContextConfiguration(locations = "classpath:person-config.xml")
 public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
 {
     @Autowired
@@ -31,7 +32,7 @@ public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
     @BeforeMethod
     public void setUp()
     {
-        person  = new Person();
+        person = new Person();
         person.setPersonId(111);
         person.setFirstName("Merlin");
         person.setLastName("Jeniffer");
@@ -41,8 +42,7 @@ public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
         try
         {
             person.setDob(formatter.parse("01/07/1990 00:00:00"));
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }

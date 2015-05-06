@@ -21,8 +21,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-@Configuration
-@EnableTransactionManagement(proxyTargetClass = true)
+//@Configuration
+//@EnableTransactionManagement(proxyTargetClass = true)
 public class PersonConfig
 {
     @Bean

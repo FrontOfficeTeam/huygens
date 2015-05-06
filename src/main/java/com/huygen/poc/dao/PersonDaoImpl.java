@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.Collections;
 import java.util.Date;
@@ -18,12 +19,13 @@ import java.util.Objects;
 @Repository
 public class PersonDaoImpl implements PersonDao
 {
+    @PersistenceContext
     private EntityManager entityManager;
     private final String FOREVER_DATE = "31/12/9999 00:00:00";
     private final String PERSON_ID = "personId";
     private final String TO_DATE = "toDate";
 
-    @Required
+    //@Required
     public void setEntityManager(EntityManager entityManager)
     {
         this.entityManager = entityManager;
@@ -33,7 +35,7 @@ public class PersonDaoImpl implements PersonDao
     {
         try
         {
-            System.out.println("***************************************** "  + person.getFirstName());
+            System.out.println("***************************************** "  + person.getFirstName() + " ..... " + (entityManager != null));
             Objects.requireNonNull(person);
             person.setFromDate(new Date());
             person.setToDate(DateUtil.convertToDate(FOREVER_DATE));
