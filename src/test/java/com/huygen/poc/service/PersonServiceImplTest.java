@@ -3,21 +3,19 @@ package com.huygen.poc.service;
 import com.huygen.poc.dao.PersonDao;
 import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.model.Person;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import com.huygen.poc.support.PersonBuilder;
+import org.mockito.*;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
-import static org.testng.Assert.assertEquals;
 
 public class PersonServiceImplTest
 {
@@ -27,7 +25,11 @@ public class PersonServiceImplTest
     @InjectMocks
     private PersonServiceImpl personService;
 
-    private Person person;
+    @Captor
+    private ArgumentCaptor<Person> personCaptor;
+
+    @Captor
+    private ArgumentCaptor<Integer> personIdCaptor;
 
     @BeforeMethod
     public void setup()
@@ -35,129 +37,108 @@ public class PersonServiceImplTest
         MockitoAnnotations.initMocks(this);
     }
 
-    @BeforeTest
-    public void populate_person_object()
+    public Person createPerson() throws PersonAppException
     {
-        person = new Person();
-        person.setPersonId(1);
-        person.setFirstName("ABC");
-        person.setLastName("XYZ");
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        try
-        {
-            person.setDob(formatter.parse("01/05/1990"));
-        } catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
+        return PersonBuilder.aNewPerson().build();
     }
 
     @Test
-    public void should_add_person() throws PersonAppException
+    public void add_person_delegates_to_dao() throws PersonAppException
     {
-        //GIVEN
-
         //WHEN
+        Person person = createPerson();
         personService.addPerson(person);
-
         //THEN
-        verify(personDao).addPerson(person);
+        verify(personDao).addPerson(personCaptor.capture());
+        Person thePersonThatWasSaved = personCaptor.getValue();
+        assertThat(thePersonThatWasSaved, is(person));
+        assertThat(thePersonThatWasSaved.getPersonId(), is(person.getPersonId()));
+        assertThat(thePersonThatWasSaved.getFirstName(), is(person.getFirstName()));
     }
 
     @Test
-    public void should_update_person() throws PersonAppException
+    public void update_person_delegates_to_dao() throws PersonAppException
     {
-        //GIVEN
-
         //WHEN
+        Person person = PersonBuilder.aNewPerson().withFirstName("Traf").build();
         personService.updatePerson(person);
-
         //THEN
-        verify(personDao).updatePerson(person);
+        verify(personDao).updatePerson(personCaptor.capture());
+        Person thePersonThatWasUpdated = personCaptor.getValue();
+        assertThat(thePersonThatWasUpdated, is(person));
+        assertThat(thePersonThatWasUpdated.getPersonId(), is(person.getPersonId()));
     }
 
     @Test
-    public void should_delete_person() throws PersonAppException
+    public void delete_person_delegates_to_dao() throws PersonAppException
     {
-        //GIVEN
-
         //WHEN
+        Person person = createPerson();
         personService.deletePerson(person);
 
         //THEN
-        verify(personDao).deletePerson(person);
+        verify(personDao).deletePerson(personCaptor.capture());
+        Person thePersonThatWasDeleted = personCaptor.getValue();
+        assertThat(thePersonThatWasDeleted, is(person));
+        assertThat(thePersonThatWasDeleted.getPersonId(), is(person.getPersonId()));
     }
 
     @Test
-    public void should_get_person() throws PersonAppException
+    public void get_person_delegates_to_dao() throws PersonAppException
     {
         //GIVEN
-        doReturn(person).when(personDao).getPerson(anyInt());
-
+        Person person = createPerson();
+        when(personDao.getPerson(anyInt())).thenReturn(person);
         //WHEN
-        Person returnedPerson = personService.getPerson(person.getPersonId());
-
+        Person personFetched = personService.getPerson(person.getPersonId());
         //THEN
-        verify(personDao).getPerson(person.getPersonId());
-        assertEquals(returnedPerson.getPersonId(), person.getPersonId());
+        verify(personDao).getPerson(personIdCaptor.capture());
+        int thePersonIdThatWasPassed = personIdCaptor.getValue();
+        assertThat(personFetched, is(person));
+        assertThat(thePersonIdThatWasPassed, is(personFetched.getPersonId()));
     }
 
     @Test
-    public void should_get_all_person() throws PersonAppException
+    public void get_all_person_delegates_to_dao() throws PersonAppException
     {
         //GIVEN
         List<Person> personList = new ArrayList<Person>();
-        personList.add(person);
-        person.setPersonId(101);
-        person.setFirstName("Joy");
-        personList.add(person);
-        doReturn(personList).when(personDao).getAllPersons();
-
+        Person firstPerson = PersonBuilder.aNewPerson().build();
+        personList.add(firstPerson);
+        Person secondPerson = PersonBuilder.aNewPerson().build();
+        personList.add(secondPerson);
+        when(personDao.getAllPersons()).thenReturn(personList);
         //WHEN
-        List<Person> returnedPersonList = personService.getAllPersons();
-
+        List<Person> people = personService.getAllPersons();
         //THEN
         verify(personDao).getAllPersons();
-        assertEquals(personList, returnedPersonList);
+        assertThat(people, containsInAnyOrder(firstPerson, secondPerson));
     }
 
-    @Test
-    public void should_not_add_person() throws PersonAppException
+    @Test(expectedExceptions = NullPointerException.class)
+    public void should_not_add_person()
     {
-        //GIVEN
-        Person person1 = null;
-
         //WHEN
-        personService.addPerson(person1);
-
-
+        personService.addPerson(null);
         //THEN
-        verify(personDao, never()).addPerson(person1);
+        verify(personDao, never()).addPerson(any(Person.class));
     }
 
-    @Test
+    @Test(expectedExceptions = NullPointerException.class)
     public void should_not_update_person() throws PersonAppException
     {
-        //GIVEN
-        Person person1 = null;
-
         //WHEN
-        personService.updatePerson(person1);
-
+        personService.updatePerson(null);
         //THEN
-        verify(personDao, never()).updatePerson(person1);
+        verify(personDao, never()).updatePerson(any(Person.class));
     }
 
-    @Test
+    @Test(expectedExceptions = NullPointerException.class)
     public void should_not_delete_person() throws PersonAppException
     {
-        //GIVEN
-        Person person1 = null;
-
         //WHEN
-        personService.deletePerson(person1);
-
+        personService.deletePerson(null);
         //THEN
-        verify(personDao, never()).deletePerson(person1);
+        verify(personDao, never()).deletePerson(any(Person.class));
     }
 }

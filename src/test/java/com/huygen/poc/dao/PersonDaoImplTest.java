@@ -1,135 +1,99 @@
 package com.huygen.poc.dao;
 
+import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.model.Person;
-import com.huygen.poc.service.PersonService;
+import com.huygen.poc.support.PersonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.text.SimpleDateFormat;
+import javax.persistence.NoResultException;
+import java.util.List;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ContextConfiguration(locations = "classpath:person-config.xml")
-public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
+public class PersonDaoImplTest extends AbstractTransactionalTestNGSpringContextTests
 {
     @Autowired
     private PersonDao personDao;
 
-    @Autowired
-    private PersonService personService;
-
-    private Person person;
-
-    public void setPersonDao(PersonDaoImpl personDao)
+    public Person createPerson() throws PersonAppException
     {
-        this.personDao = personDao;
-    }
-
-    @BeforeMethod
-    public void setUp()
-    {
-        person = new Person();
-        person.setPersonId(111);
-        person.setFirstName("Merlin");
-        person.setLastName("Jeniffer");
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
-        try
-        {
-            person.setDob(formatter.parse("01/07/1990 00:00:00"));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        return PersonBuilder.aNewPerson().build();
     }
 
     @Test
     @Transactional
-    private void should_add_person() {
-        // GIVEN
-
-        //WHEN
-        personService.addPerson(person);
-
-        //THEN
-        Person fetchedPerson = personService.getPerson(person.getPersonId());
-        assertEquals(person.getPersonId(), fetchedPerson.getPersonId());
-    }
-
-    //@Test
-    //@Transactional
-    public void testAddPerson() throws Exception
+    public void testAddPerson() throws PersonAppException
     {
-        //GIVEN
-
         //WHEN
+        Person person = createPerson();
         personDao.addPerson(person);
-
         //THEN
         Person p = personDao.getPerson(person.getPersonId());
-        assertNotNull(p);
-        //assertEquals(person.getPersonId(), p.getPersonId());
+        assertThat(p, is(notNullValue()));
+        assertThat(p.getPersonId(), is(person.getPersonId()));
     }
 
-    /*@Test
+    @Test
     @Transactional
-    public void testUpdatePerson() throws Exception
+    public void testUpdatePerson() throws PersonAppException
     {
         //GIVEN
+        Person person = createPerson();
         personDao.addPerson(person);
+        //WHEN
         person.setFirstName("Barbie");
-
-        //WHEN
         personDao.updatePerson(person);
-
         //THEN
         Person p = personDao.getPerson(person.getPersonId());
-        assertEquals(person.getFirstName(), p.getFirstName());
-
+        assertThat(p, is(notNullValue()));
+        assertThat(p.getFirstName(), is(person.getFirstName()));
     }
 
-    @Test
+    @Test(expectedExceptions = NoResultException.class)
     @Transactional
-    public void testDeletePerson() throws Exception
+    public void testDeletePerson() throws PersonAppException
     {
         //GIVEN
+        Person person = createPerson();
         personDao.addPerson(person);
-
         //WHEN
         personDao.deletePerson(person);
-
         //THEN
-        assertNull(personDao.getPerson(person.getPersonId()));
+        personDao.getPerson(person.getPersonId());
     }
 
     @Test
     @Transactional
-    public void testGetAllPersons() throws Exception
+    public void testGetAllPersons() throws PersonAppException
     {
         //GIVEN
-        personDao.addPerson(person);
-
+        Person person1 = createPerson();
+        personDao.addPerson(person1);
+        Person person2 = createPerson();
+        personDao.addPerson(person2);
         //WHEN
-        personDao.getAllPersons();
-
+        List<Person> personList = personDao.getAllPersons();
         //THEN
-        int size = personDao.getAllPersons().size();
-        assertTrue(size == 0);
+        assertThat(personList.size(), is(2));
+        assertThat(personList, containsInAnyOrder(person1, person2));
     }
 
     @Test
-    public void testGetPerson() throws Exception
+    public void testGetPerson() throws PersonAppException
     {
         //GIVEN
-
+        Person person = createPerson();
+        personDao.addPerson(person);
         //WHEN
-
+        Person personFetched = personDao.getPerson(person.getPersonId());
         //THEN
-    }*/
+        assertThat(personFetched, is(person));
+        assertThat(personFetched.getPersonId(), is(person.getPersonId()));
+    }
 }

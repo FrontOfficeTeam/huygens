@@ -2,6 +2,7 @@ package com.huygen.poc.config;
 
 import com.huygen.poc.dao.PersonDao;
 import com.huygen.poc.dao.PersonDaoImpl;
+import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.service.PersonServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -88,17 +89,17 @@ public class PersonConfig
     }
 
     @Bean
-    public PersonDao personDao()
+    public PersonDao personDao() throws PersonAppException
     {
         PersonDaoImpl personDao = new PersonDaoImpl();
         //personDao.setEntityManager(entityManagerFactory().createEntityManager());
-        personDao.setEntityManager(entityManager());
+        //personDao.setEntityManager(entityManager());
 
         return personDao;
     }
 
     @Bean
-    public PersonServiceImpl personService()
+    public PersonServiceImpl personService() throws PersonAppException
     {
         PersonServiceImpl service = new PersonServiceImpl();
         service.setPersonDao(personDao());

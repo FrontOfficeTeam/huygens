@@ -3,7 +3,6 @@ package com.huygen.poc.dao;
 import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.model.Person;
 import com.huygen.poc.util.DateUtil;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -19,113 +18,61 @@ public class PersonDaoImpl implements PersonDao
 {
     @PersistenceContext
     private EntityManager entityManager;
-    private final String FOREVER_DATE = "31/12/9999 00:00:00";
-    private final String PERSON_ID = "personId";
-    private final String TO_DATE = "toDate";
 
-    public void setEntityManager(EntityManager entityManager)
+    private final Date FOREVER_DATE;
+
+    public PersonDaoImpl() throws PersonAppException
     {
-        this.entityManager = entityManager;
+        FOREVER_DATE = DateUtil.convertToDate("31/12/9999 00:00:00");
     }
 
-    public void addPerson(Person person) throws PersonAppException
+    public void addPerson(Person person)
     {
-        try
-        {
-            Objects.requireNonNull(person);
-            person.setFromDate(new Date());
-            person.setToDate(DateUtil.convertToDate(FOREVER_DATE));
-            entityManager.persist(person);
-
-        } catch (DataAccessException exception)
-        {
-            throw new PersonAppException("Error in inserting person details", exception);
-        } catch (Exception e)
-        {
-            throw new PersonAppException("Error in insert person", e);
-        }
+        Objects.requireNonNull(person);
+        person.addVersion();
+        entityManager.persist(person);
     }
 
     public void updatePerson(Person person) throws PersonAppException
     {
-        try
-        {
-            Objects.requireNonNull(person);
-            Person personFromDataBase = getPerson(person.getPersonId());
-            personFromDataBase.setToDate(new Date());
-            entityManager.merge(personFromDataBase);
+        Objects.requireNonNull(person);
+        Person personFromDataBase = getPerson(person.getPersonId());
+        person.retireVersion();
+        entityManager.merge(personFromDataBase);
 
-            person.setToDate(DateUtil.convertToDate(FOREVER_DATE));
-            addPerson(person);
+        Person copyOfPerson = person.makeCopy();
+        copyOfPerson.addVersion();
+        addPerson(person);
+    }
 
-        } catch (DataAccessException exception)
+    public void deletePerson(Person person)
+    {
+        Objects.requireNonNull(person);
+        Person personFromDataBase = getPerson(person.getPersonId());
+        personFromDataBase.retireVersion();
+        entityManager.merge(personFromDataBase);
+    }
+
+    public List<Person> getAllPersons()
+    {
+        Query query = entityManager.createQuery("from Person where toDate = :toDate");
+        query.setParameter("toDate", FOREVER_DATE);
+        List persons = query.getResultList();
+        if (null != persons)
         {
-            throw new PersonAppException("Error in updating person details", exception);
-        } catch (Exception e)
+            return persons;
+        } else
         {
-            throw new PersonAppException("Error in update person", e);
+            return Collections.EMPTY_LIST;
         }
     }
 
-    public void deletePerson(Person person) throws PersonAppException
+    public Person getPerson(int personId)
     {
-        try
-        {
-            Objects.requireNonNull(person);
-            Person personFromDataBase = getPerson(person.getPersonId());
-            personFromDataBase.setToDate(new Date());
-            entityManager.merge(personFromDataBase);
+        Query query = entityManager.createQuery("from Person where personId = :personId and toDate = :date");
+        query.setParameter("personId", personId);
+        query.setParameter("date", FOREVER_DATE);
 
-        } catch (DataAccessException exception)
-        {
-            throw new PersonAppException("Error in deleting person details", exception);
-        } catch (Exception e)
-        {
-            throw new PersonAppException("Error in delete person", e);
-        }
-
-    }
-
-    public List<Person> getAllPersons() throws PersonAppException
-    {
-        try
-        {
-            Query query = entityManager.createQuery("select p from Person p where p.toDate = :param1");
-            query.setParameter("param1", DateUtil.convertToDate(FOREVER_DATE));
-            if (null != query.getResultList())
-            {
-                List<Person> persons = query.getResultList();
-                return persons;
-            } else
-            {
-                return Collections.EMPTY_LIST;
-            }
-        } catch (DataAccessException exception)
-        {
-            throw new PersonAppException("Error in retrieving person details", exception);
-        } catch (Exception e)
-        {
-            throw new PersonAppException("Error in retrieve person", e);
-        }
-
-    }
-
-    public Person getPerson(int personId) throws PersonAppException
-    {
-        try
-        {
-            Query query = entityManager.createQuery("from Person where personId = :personId and toDate = :date");
-            query.setParameter("personId", personId);
-            query.setParameter("date", DateUtil.convertToDate(FOREVER_DATE));
-            Person person = (Person) query.getSingleResult();
-
-            return person;
-        } catch (DataAccessException exception)
-        {
-            throw new PersonAppException("Error in retrieving person details", exception);
-        } catch (Exception e)
-        {
-            throw new PersonAppException("Error in retrieve person", e);
-        }
+        return (Person) query.getSingleResult();
     }
 }

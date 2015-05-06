@@ -20,8 +20,7 @@
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <property name="persistenceUnitName" value="personPersistence"/>
-        <!-- <property name="packagesToScan" value="com.huygen.poc.model" /> -->
+        <property name="packagesToScan" value="com.huygen.poc.model"/>
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 <property name="database" value="HSQL"/>
@@ -40,7 +39,7 @@
     </bean>
 
     <bean id="personService" class="com.huygen.poc.service.PersonServiceImpl">
-        <property name="personDao" ref="personDao" />
+        <property name="personDao" ref="personDao"/>
     </bean>
 
     <bean id="personDao" class="com.huygen.poc.dao.PersonDaoImpl"/>

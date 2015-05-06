@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PersonServiceImpl implements PersonService
@@ -26,89 +27,37 @@ public class PersonServiceImpl implements PersonService
     @Transactional
     public void addPerson(Person person)
     {
-        if (null != person)
-        {
-            try
-            {
-                System.out.println("SERVICE " + person.toString());
-                personDao.addPerson(person);
-            } catch (PersonAppException exception)
-            {
-                logger.debug(exception.getMessage());
-            }
-        } else
-        {
-            logger.debug("Person object is null");
-        }
-
+        Objects.requireNonNull(person);
+        personDao.addPerson(person);
     }
 
     @Override
     @Transactional
-    public void updatePerson(Person person)
+    public void updatePerson(Person person) throws PersonAppException
     {
-        if (null != person)
-        {
-            try
-            {
-                personDao.updatePerson(person);
-            } catch (PersonAppException exception)
-            {
-                logger.debug(exception.getMessage());
-            }
-        } else
-        {
-            logger.debug("Person object is null");
-        }
+        Objects.requireNonNull(person);
+        personDao.updatePerson(person);
     }
 
     @Override
     @Transactional
     public void deletePerson(Person person)
     {
-        if (null != person)
-        {
-            try
-            {
-                personDao.deletePerson(person);
-            } catch (PersonAppException exception)
-            {
-                logger.debug(exception.getMessage());
-            } catch (Exception e)
-            {
-                logger.debug("com.trafigura.poc.exception while adding a person record in db");
-            }
-        } else
-        {
-            logger.debug("Person object is null");
-        }
+        Objects.requireNonNull(person);
+        personDao.deletePerson(person);
     }
 
     @Override
     @Transactional
     public List<Person> getAllPersons()
     {
-        try
-        {
-            return personDao.getAllPersons();
-        } catch (PersonAppException exception)
-        {
-            logger.debug(exception.getMessage());
-        }
-        return null;
+        return personDao.getAllPersons();
     }
 
     @Override
     @Transactional
     public Person getPerson(int personId)
     {
-        try
-        {
-            return personDao.getPerson(personId);
-        } catch (PersonAppException exception)
-        {
-            logger.debug(exception.getMessage());
-        }
-        return null;
+        return personDao.getPerson(personId);
     }
 }

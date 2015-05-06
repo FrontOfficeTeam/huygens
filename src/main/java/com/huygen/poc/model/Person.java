@@ -1,5 +1,8 @@
 package com.huygen.poc.model;
 
+import com.huygen.poc.exception.PersonAppException;
+import com.huygen.poc.util.DateUtil;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -23,6 +26,36 @@ public class Person
     private Date fromDate;
     @Column(name = "TO_DATE")
     private Date toDate;
+
+    private final Date FOREVER_DATE;
+
+    public Person() throws PersonAppException
+    {
+        FOREVER_DATE = DateUtil.convertToDate("31/12/9999 00:00:00");
+    }
+
+    public void retireVersion()
+    {
+        setToDate(new Date());
+    }
+
+    public void addVersion()
+    {
+        setFromDate(new Date());
+        setToDate(FOREVER_DATE);
+    }
+
+    public Person makeCopy() throws PersonAppException
+    {
+        Person p = new Person();
+        p.setPersonId(getPersonId());
+        p.setFirstName(getFirstName());
+        p.setLastName(getLastName());
+        p.setDob(getDob());
+        p.setFromDate(getFromDate());
+        p.setToDate(getToDate());
+        return p;
+    }
 
     public int getId()
     {
