@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat;
 
 import static org.testng.Assert.*;
 
-//@ContextConfiguration(classes = PersonConfig.class)
 @ContextConfiguration(locations = "classpath:person-config.xml")
 public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
 {

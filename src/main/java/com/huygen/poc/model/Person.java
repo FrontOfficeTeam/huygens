@@ -7,7 +7,6 @@ import java.util.Date;
 @Table(name = "PERSON_DETAILS")
 public class Person
 {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
