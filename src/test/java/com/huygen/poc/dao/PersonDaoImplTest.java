@@ -1,6 +1,7 @@
 package com.huygen.poc.dao;
 
 import com.huygen.poc.model.Person;
+import com.huygen.poc.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -10,13 +11,17 @@ import org.testng.annotations.Test;
 
 import java.text.SimpleDateFormat;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 @ContextConfiguration(locations = "classpath:person-config.xml")
 public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
 {
     @Autowired
-    private PersonDaoImpl personDao;
+    private PersonDao personDao;
+
+    @Autowired
+    private PersonService personService;
 
     private Person person;
 
@@ -46,6 +51,19 @@ public class PersonDaoImplTest extends AbstractTestNGSpringContextTests
 
     @Test
     @Transactional
+    private void should_add_person() {
+        // GIVEN
+
+        //WHEN
+        personService.addPerson(person);
+
+        //THEN
+        Person fetchedPerson = personService.getPerson(person.getPersonId());
+        assertEquals(person.getPersonId(), fetchedPerson.getPersonId());
+    }
+
+    //@Test
+    //@Transactional
     public void testAddPerson() throws Exception
     {
         //GIVEN
