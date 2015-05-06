@@ -3,7 +3,10 @@ package com.huygen.poc.dao;
 import com.huygen.poc.exception.PersonAppException;
 import com.huygen.poc.model.Person;
 import com.huygen.poc.util.DateUtil;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -12,14 +15,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+@Repository
 public class PersonDaoImpl implements PersonDao
 {
-
     private EntityManager entityManager;
-    private final String FOREVER_DATE = "31/12/9999";
+    private final String FOREVER_DATE = "31/12/9999 00:00:00";
     private final String PERSON_ID = "personId";
     private final String TO_DATE = "toDate";
 
+    @Required
     public void setEntityManager(EntityManager entityManager)
     {
         this.entityManager = entityManager;
@@ -29,17 +33,19 @@ public class PersonDaoImpl implements PersonDao
     {
         try
         {
+            System.out.println("***************************************** "  + person.getFirstName());
             Objects.requireNonNull(person);
             person.setFromDate(new Date());
             person.setToDate(DateUtil.convertToDate(FOREVER_DATE));
             entityManager.persist(person);
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++");
 
         } catch (DataAccessException exception)
         {
-            throw new PersonAppException("Error in inserting person details" + exception.getMessage());
+            throw new PersonAppException("Error in inserting person details", exception);
         } catch (Exception e)
         {
-            throw new PersonAppException("Error in insert person " + e.getMessage());
+            throw new PersonAppException("Error in insert person", e);
         }
     }
 
@@ -57,10 +63,10 @@ public class PersonDaoImpl implements PersonDao
 
         } catch (DataAccessException exception)
         {
-            throw new PersonAppException("Error in updating person details" + exception.getMessage());
+            throw new PersonAppException("Error in updating person details", exception);
         } catch (Exception e)
         {
-            throw new PersonAppException("Error in update person " + e.getMessage());
+            throw new PersonAppException("Error in update person", e);
         }
     }
 
@@ -75,10 +81,10 @@ public class PersonDaoImpl implements PersonDao
 
         } catch (DataAccessException exception)
         {
-            throw new PersonAppException("Error in deleting person details" + exception.getMessage());
+            throw new PersonAppException("Error in deleting person details", exception);
         } catch (Exception e)
         {
-            throw new PersonAppException("Error in delete person " + e.getMessage());
+            throw new PersonAppException("Error in delete person", e);
         }
 
     }
@@ -99,37 +105,41 @@ public class PersonDaoImpl implements PersonDao
             }
         } catch (DataAccessException exception)
         {
-            throw new PersonAppException("Error in retrieving person details" + exception.getMessage());
+            throw new PersonAppException("Error in retrieving person details", exception);
         } catch (Exception e)
         {
-            throw new PersonAppException("Error in retrieve person " + e.getMessage());
+            throw new PersonAppException("Error in retrieve person", e);
         }
 
     }
-
 
     public Person getPerson(int personId) throws PersonAppException
     {
         try
         {
-            Query query = entityManager.createQuery("select p from Person p where p.personId = :param1 and " +
-                    " p.toDate = :param2");
-            query.setParameter("param1", personId);
-            query.setParameter("param2", DateUtil.convertToDate(FOREVER_DATE));
+            //Query query = entityManager.createQuery("select p from Person p where p.personId = :param1 and " + " p.toDate = :param2");
+            Query query = entityManager.createQuery("from Person");
+           // query.setParameter("param1", personId);
+            //query.setParameter("param2", DateUtil.convertToDate(FOREVER_DATE));
 
-            if (null != query.getResultList() && !query.getResultList().isEmpty())
+          //  return (Person) query.getSingleResult();
+            List<Person> personList = query.getResultList();
+            Objects.requireNonNull(personList);
+                    return personList.get(0);
+
+            /*if (null != query.getResultList() && !query.getResultList().isEmpty())
             {
                 System.out.println("GetPErson" + (Person) query.getSingleResult());
             }
             return (null != query.getResultList() && !query.getResultList().isEmpty()) ?
-                    ((Person) query.getSingleResult()) : null;
+                    ((Person) query.getSingleResult()) : null;*/
 
         } catch (DataAccessException exception)
         {
-            throw new PersonAppException("Error in retrieving person details" + exception.getMessage());
+            throw new PersonAppException("Error in retrieving person details", exception);
         } catch (Exception e)
         {
-            throw new PersonAppException("Error in retrieve person " + e.getMessage());
+            throw new PersonAppException("Error in retrieve person", e);
         }
     }
 }
